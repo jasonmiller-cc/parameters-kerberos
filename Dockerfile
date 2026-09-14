@@ -1,10 +1,15 @@
-FROM golang:1.22-alpine AS builder
+# syntax=docker/dockerfile:1
+FROM golang:1.27-alpine AS builder
 
 WORKDIR /src
 
 # Download dependencies first for layer caching.
 COPY go.mod go.sum ./
-# The replace directive points to ../parameters-core; copy it alongside.
+# parameters-core is a local replace living in a sibling directory outside
+# this build context; Docker forbids COPY-ing paths outside the primary
+# context, so it's supplied as a named build context instead — see
+# --build-context in the Makefile.
+COPY --from=parameters-core . /parameters-core
 COPY . .
 
 RUN go build -o /app/parameters-kerberos ./cmd/server

@@ -19,7 +19,10 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 docker:
-	docker build -t $(BINARY):latest .
+	docker buildx build \
+		--build-context parameters-core=../parameters-core \
+		-t $(BINARY):latest \
+		--load .
 
 run: build
 	$(BUILD_DIR)/$(BINARY)
